@@ -1,5 +1,9 @@
 from appscript import app, k
 from csv import reader
+from appscript.reference import mactypes
+import tempfile
+import shutil
+import os
 
 # Specify which app to use
 outlook = app('Microsoft Outlook')
@@ -27,18 +31,20 @@ for i in range(len(gen_info_header)):
     general_email = general_email.replace(
         '{' + gen_info_header[i] + '}', gen_info[i])
 
-# Open the csv for each user and send them custom email
+# Open the csv to read in each user
 customer_info_file = open("Purchase_Summary_Dummy.csv")
 customer_info_reader = reader(customer_info_file)
 customer_info_header = next(customer_info_reader)
 num_customer_header = len(customer_info_header)
 
+# Create custom email for each
 for customer_info in customer_info_reader:
 
     custom_email = general_email
     address = 'fakeperson@gmail.com'
     name = 'Fake Person'
 
+    # Replace the key words with custom ones
     for i in range(num_customer_header):
 
         if (customer_info_header[i] == "Email"):
@@ -54,7 +60,27 @@ for customer_info in customer_info_reader:
         new=k.outgoing_message,
         with_properties={
             k.subject: subject,
-            k.content: custom_email})
+            k.content: custom_email
+        })
+
+    # attachment_path = "/Users/tina/Downloads/mamma-mia-tickets/mamma-mia-P16-Kristina.pdf"
+
+    # with open(attachment_path, "rb") as attachment_file:
+    #     attachment_contents = attachment_file.read()
+
+    # # Save attachment to a temporary location
+    # temp_dir = tempfile.mkdtemp()
+    # temp_attachment_path = os.path.join(
+    #     temp_dir, os.path.basename(attachment_path))
+    # shutil.copyfile(attachment_path, temp_attachment_path)
+
+    # # Set the attachment properties
+    # attachment = msg.make(
+    #     new=k.attachment,
+    #     with_properties={
+    #         k.file: temp_attachment_path
+    #     })
+    # attachment.name.set(os.path.basename(attachment_path))
 
     msg.make(
         new=k.recipient,
